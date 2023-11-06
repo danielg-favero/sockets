@@ -4,13 +4,15 @@
 #include <string.h>
 #include <unistd.h>
 
+#define MAX_REPLY_LENGTH 2000
+
 int createSocket() {
     int socketDesc;
 
     socketDesc = socket(AF_INET, SOCK_STREAM, 0);
 
     if(socketDesc == -1) {
-        printf("Could not create socket\n");
+        perror("Não foi possível criar o socket\n");
         return -1;
     }
 
@@ -18,7 +20,7 @@ int createSocket() {
 }
 
 void configureServer(struct sockaddr_in *server) {
-    server->sin_addr.s_addr = inet_addr("172.31.3.109");
+    server->sin_addr.s_addr = inet_addr("172.20.94.39");
 	server->sin_family = AF_INET;
 	server->sin_port = htons(8888);
 }
@@ -27,47 +29,56 @@ int connectServer(struct sockaddr_in server, int socketDesc) {
     int connected = connect(socketDesc , (struct sockaddr *)&server , sizeof(server));
 
 	if (connected < 0) {
-		puts("Connection error\n");
+		perror("Erro de conexão\n");
 		return 1;
 	}
 
-    puts("Connected");
+    puts("Conectado");
 }
 
 int sendData(char *message, int socketDesc) {
     int sended = send(socketDesc, message, strlen(message), 0);
 
 	if(sended < 0) {
-		puts("Send failed\n");
-		return 1;
+		puts("\nErro ao enviar opção ao servidor, tente novamente...\n");
+		return 0;
 	}
 
-	puts("Data Send\n");
+	puts("\nOpção enviada ao servidor\n");
+    return 1;
 }
 
-int receiveData(int socketDesc) {
-    int replyLength = 2000;
-    char reply[replyLength];
+int receiveData(int socketDesc, char *reply) {
+    int replyLength = recv(socketDesc, reply, MAX_REPLY_LENGTH, 0);
 
-    int received = recv(socketDesc, reply, replyLength, 0);
-
-	if(received  < 0) {
-		puts("Data receiving failed\n");
+	if(replyLength < 0) {
+		perror("Erro ao receber a resposta do servidor\n");
+        return 0;
 	}
 
-	puts("Reply received\n");
-	puts(reply);
+    reply[replyLength] = '\0';
+
+	printf("Servidor respondeu: %s\n", reply);
+    return 1;
 }
 
 int main() {
     struct sockaddr_in server;
+    char message[256];
+    char response[MAX_REPLY_LENGTH];
 
     int socket = createSocket();
     configureServer(&server);
     connectServer(server, socket);
 
-    sendData("GET / HTTP/1.1\r\n\r\n", socket);
-    receiveData(socket);
+    receiveData(socket, response);
+    while(1) {
+        scanf("%s", &message);
+        sendData(message, socket);
+        fflush(stdin);
+
+        receiveData(socket, response);
+    }
 
     close(socket);
 
