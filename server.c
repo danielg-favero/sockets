@@ -178,7 +178,7 @@ int main(int argc , char *argv[])
 
 		game(newSocket);
 		
-		sendResponse("\n--------------------\n\nQUIZ FINALIZADO!\n\n--------------------\nFinalizando Conexão...\nClose\n", newSocket);
+		sendResponse("\n--------------------\n\nQUIZ FINALIZADO!\n\n--------------------\nFinalizando Conexão...\n", newSocket);
 		close(newSocket);
     }
 

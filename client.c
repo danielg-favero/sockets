@@ -72,7 +72,7 @@ int main() {
     configureServer(&server);
     connectServer(server, socket);
 
-    while(1) {
+    do {
         receiveData(socket, question);
 
         scanf("%s", &option);
@@ -82,7 +82,7 @@ int main() {
         receiveData(socket, feedback);
 
         if(strstr(feedback, "Close") != NULL) break;
-    }
+    } while(strcmp(option, "6\0") != 0);
 
     close(socket);
 
