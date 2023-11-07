@@ -147,8 +147,6 @@ void game(int socketDesc) {
 			}
 		}
 	} while(strcmp(response, "6\0") != 0 && currentQuestionId <= 5);
-
-	sendResponse("\n--------------------\n\nQUIZ FINALIZADO!\n\n--------------------\n", socketDesc);
 }
 
 int main(int argc , char *argv[])
@@ -180,7 +178,7 @@ int main(int argc , char *argv[])
 
 		game(newSocket);
 		
-		sendResponse("Finalizando Conexão...", newSocket);
+		sendResponse("\n--------------------\n\nQUIZ FINALIZADO!\n\n--------------------\nFinalizando Conexão...\nClose\n", newSocket);
 		close(newSocket);
     }
 

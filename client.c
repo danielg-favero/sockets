@@ -64,20 +64,24 @@ int receiveData(int socketDesc, char *reply) {
 
 int main() {
     struct sockaddr_in server;
-    char message[256];
-    char response[MAX_REPLY_LENGTH];
+    char option[4];
+    char question[MAX_REPLY_LENGTH];
+    char feedback[MAX_REPLY_LENGTH];
 
     int socket = createSocket();
     configureServer(&server);
     connectServer(server, socket);
 
-    receiveData(socket, response);
     while(1) {
-        scanf("%s", &message);
-        sendData(message, socket);
+        receiveData(socket, question);
+
+        scanf("%s", &option);
+        sendData(option, socket);
         fflush(stdin);
 
-        receiveData(socket, response);
+        receiveData(socket, feedback);
+
+        if(strstr(feedback, "Close") != NULL) break;
     }
 
     close(socket);
